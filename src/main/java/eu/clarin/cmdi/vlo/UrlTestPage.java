@@ -17,10 +17,12 @@
 package eu.clarin.cmdi.vlo;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.IAjaxCallListener;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -28,6 +30,8 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,8 +39,18 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
  */
 public class UrlTestPage extends WebPage {
 
+    private final static Logger LOG = LoggerFactory.getLogger(UrlTestPage.class);
+    
     private IModel<String> textModel;
     private IModel<HashMap<String, String>> pageParamsModel;
+    
+    final private AjaxRequestTarget.ITargetRespondListener respondListener = new AjaxRequestTarget.ITargetRespondListener() {
+        @Override
+        public void onTargetRespond(AjaxRequestTarget target) {
+            target.appendJavaScript("this.window.location = this.window.location + '#test'");
+        }
+        
+    };
 
     public UrlTestPage(PageParameters parameters) {
         super(parameters);
@@ -53,6 +67,7 @@ public class UrlTestPage extends WebPage {
                 pageParamsModel.getObject().put("text", textModel.getObject());
                 if (target != null) {
                     target.add(form);
+                    target.registerRespondListener(respondListener);
                 }
             }
         };
