@@ -16,16 +16,15 @@
  */
 package eu.clarin.cmdi.vlo;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -35,30 +34,43 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
  * @author Twan Goosen <twan@clarin.eu>
  */
 public class UrlTestPage extends WebPage {
-    
+
     private IModel<String> textModel;
-    
+    private IModel<HashMap<String, String>> pageParamsModel;
+
     public UrlTestPage(PageParameters parameters) {
         super(parameters);
         textModel = new Model<>("text");
+        pageParamsModel = new Model<>(new HashMap<>());
+
         final Form form = new Form("form");
-        
+        final Label label = new Label("text", textModel);
+        final AjaxFallbackButton button = new AjaxFallbackButton("button", form) {
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                super.onSubmit(target, form);
+                textModel.setObject("new text " + new Random().nextInt());
+                pageParamsModel.getObject().put("text", textModel.getObject());
+                if (target != null) {
+                    target.add(form);
+                }
+            }
+        };
+
+        Label paramsLabel = new Label("params", new AbstractReadOnlyModel<String>() {
+            @Override
+            public String getObject() {
+                return pageParamsModel.getObject().toString();
+            }
+        });
+
         add(form
-                .add(new Label("text", textModel))
-                .add(new AjaxFallbackButton("button", form) {
-                    @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                        super.onSubmit(target, form);
-                        textModel.setObject("new text " + new Random().nextInt());
-                        if (target != null) {
-                            target.add(form);
-                        }
-                    }
-                    
-                })
+                .add(label)
+                .add(button)
+                .add(paramsLabel)
                 .setOutputMarkupId(true)
         );
-        
+
     }
-    
+
 }
