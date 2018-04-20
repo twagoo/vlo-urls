@@ -40,22 +40,16 @@ import org.slf4j.LoggerFactory;
 public class UrlTestPage extends WebPage {
 
     private final static Logger LOG = LoggerFactory.getLogger(UrlTestPage.class);
-    
+
     private IModel<String> textModel;
-    private IModel<HashMap<String, String>> pageParamsModel;
-    
-    final private AjaxRequestTarget.ITargetRespondListener respondListener = new AjaxRequestTarget.ITargetRespondListener() {
-        @Override
-        public void onTargetRespond(AjaxRequestTarget target) {
-            target.appendJavaScript("this.window.location = this.window.location + '#test'");
-        }
-        
-    };
 
     public UrlTestPage(PageParameters parameters) {
         super(parameters);
         textModel = new Model<>("text");
-        pageParamsModel = new Model<>(new HashMap<>());
+
+        final UrlFragmentStateSetter urlSetter
+                = new UrlFragmentStateSetter()
+                        .addModel("text", textModel);
 
         final Form form = new Form("form");
         final Label label = new Label("text", textModel);
@@ -64,10 +58,9 @@ public class UrlTestPage extends WebPage {
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 super.onSubmit(target, form);
                 textModel.setObject("new text " + new Random().nextInt());
-                pageParamsModel.getObject().put("text", textModel.getObject());
                 if (target != null) {
                     target.add(form);
-                    target.registerRespondListener(respondListener);
+                    target.registerRespondListener(urlSetter);
                 }
             }
         };
@@ -75,7 +68,7 @@ public class UrlTestPage extends WebPage {
         Label paramsLabel = new Label("params", new AbstractReadOnlyModel<String>() {
             @Override
             public String getObject() {
-                return pageParamsModel.getObject().toString();
+                return urlSetter.toString();
             }
         });
 
