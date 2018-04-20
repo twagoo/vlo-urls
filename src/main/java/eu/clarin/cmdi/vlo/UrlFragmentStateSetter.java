@@ -52,12 +52,21 @@ public class UrlFragmentStateSetter implements AjaxRequestTarget.ITargetRespondL
         });
 
         //TODO: don't remove all fragments
-        target.appendJavaScript("this.window.location = this.window.location + '#" + state.toString() + "'");
+        target.appendJavaScript(""
+                + "var loc = this.window.location;"
+                + "var hash = loc.hash;"
+                + "var hashIndex = loc.toString().indexOf(hash);"
+                + "if(hashIndex >= 0) {"
+                //todo keep part of old hash
+                + "  this.window.location = loc.toString().substr(0,hashIndex) + '#" + state.toString() + "';"
+                + "} else {"
+                + "  this.window.location = loc + '#" + state.toString() + "';"
+                + "}");
     }
 
     @Override
     public String toString() {
-        return pageParamsModel.toString();
+        return pageParamsModel.getObject().toString();
     }
 
 }
