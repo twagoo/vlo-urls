@@ -22,6 +22,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <head>
         <title>URL fragment test</title>
+        <wicket:head>
+            <script type="text/javascript">
+                var hash = window.location.hash;
+                if (hash.length > 0) {
+                    var loc = window.location.toString();
+                    var hashIndex = loc.indexOf(hash);
+                    var locBase = loc.substr(0, hashIndex);
+                    if(locBase.indexOf('?') >= 0) {
+                        var newLoc = locBase.substr(0, locBase.indexOf('?'));
+                    } else {
+                        var newLoc = locBase;
+                    }
+                    window.location = newLoc + '?' + hash.substr(1);
+                }
+            </script>
+        </wicket:head>
+
     </head>
     <body>
         <h1>Url fragment test</h1>
@@ -32,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <p>
                 <button wicket:id="button">change</button>
             </p>
-            
+
             <p>
                 <pre wicket:id="params"></pre>
             </p>
