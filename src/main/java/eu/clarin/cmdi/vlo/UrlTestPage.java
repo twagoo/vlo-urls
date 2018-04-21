@@ -45,7 +45,8 @@ public class UrlTestPage extends WebPage {
 
     public UrlTestPage(PageParameters parameters) {
         super(parameters);
-        textModel = new Model<>("text");
+        textModel = new Model<>(
+                parameters.get("text").toString("no value provided"));
 
         final UrlFragmentStateSetter urlSetter
                 = new UrlFragmentStateSetter()
@@ -57,7 +58,7 @@ public class UrlTestPage extends WebPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 super.onSubmit(target, form);
-                textModel.setObject("new text " + new Random().nextInt());
+                textModel.setObject("generated text " + new Random().nextInt());
                 if (target != null) {
                     target.add(form);
                     target.registerRespondListener(urlSetter);

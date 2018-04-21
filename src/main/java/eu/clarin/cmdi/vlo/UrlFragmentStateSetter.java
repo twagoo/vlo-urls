@@ -16,8 +16,8 @@
  */
 package eu.clarin.cmdi.vlo;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -50,7 +50,7 @@ public class UrlFragmentStateSetter implements AjaxRequestTarget.ITargetRespondL
             final String encodedValue = UrlEncoder.QUERY_INSTANCE.encode(value, "UTF-8");
             state.append(key).append("=").append(encodedValue);
         });
-
+        
         //TODO: don't remove all fragments
         target.appendJavaScript(""
                 + "var loc = this.window.location;"
