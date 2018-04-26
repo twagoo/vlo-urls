@@ -17,7 +17,6 @@
 package eu.clarin.cmdi.vlo;
 
 import java.util.HashMap;
-import java.util.stream.Collectors;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -51,17 +50,21 @@ public class UrlFragmentStateSetter implements AjaxRequestTarget.ITargetRespondL
             state.append(key).append("=").append(encodedValue);
         });
         
-        //TODO: don't remove all fragments
         target.appendJavaScript(""
-                + "var loc = this.window.location;"
-                + "var hash = loc.hash;"
-                + "var hashIndex = loc.toString().indexOf(hash);"
-                + "if(hashIndex >= 0) {"
-                //todo keep part of old hash
-                + "  this.window.location = loc.toString().substr(0,hashIndex) + '#" + state.toString() + "';"
-                + "} else {"
-                + "  this.window.location = loc + '#" + state.toString() + "';"
-                + "}");
+                + "var path = this.window.location.pathname;"
+                + "var queryParams = this.window.location.search;"
+                + "var newParams = '?';"
+//                + "if (queryParams && queryParams !== '') {"
+//                + " sessionIndex = queryParams.replace(/\\?(\\d+).*/,'$1');"
+//                + " if(sessionIndex != '') {"
+//                + "   newParams += sessionIndex + '&'; "
+//                + " }"
+//                + " console.log('New params: ' + newParams);"
+//                + "}"
+                + "var newUrl = path + newParams + '" + state.toString() + "';"
+                + "console.log('New url: ' + newUrl);"
+                + "var stateObj = { foo: 'bar' };"
+                + "history.pushState(stateObj, 'page', newUrl);");
     }
 
     @Override
