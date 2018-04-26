@@ -48,8 +48,8 @@ public class UrlTestPage extends WebPage {
         textModel = new Model<>(
                 parameters.get("text").toString("no value provided"));
 
-        final UrlFragmentStateSetter urlSetter
-                = new UrlFragmentStateSetter()
+        final HistoryApiTargetRespondListener urlSetter
+                = new HistoryApiTargetRespondListener()
                         .addModel("text", textModel);
 
         final Form form = new Form("form");

@@ -26,15 +26,15 @@ import org.apache.wicket.util.encoding.UrlEncoder;
  *
  * @author Twan Goosen <twan@clarin.eu>
  */
-public class UrlFragmentStateSetter implements AjaxRequestTarget.ITargetRespondListener {
+public class HistoryApiTargetRespondListener implements AjaxRequestTarget.ITargetRespondListener {
 
     private final IModel<HashMap<String, IModel<?>>> pageParamsModel;
 
-    public UrlFragmentStateSetter() {
+    public HistoryApiTargetRespondListener() {
         pageParamsModel = new Model<>(new HashMap<>());
     }
 
-    public UrlFragmentStateSetter addModel(String key, IModel<?> model) {
+    public HistoryApiTargetRespondListener addModel(String key, IModel<?> model) {
         pageParamsModel.getObject().put(key, model);
         return this;
     }
