@@ -1,8 +1,14 @@
 package eu.clarin.cmdi.vlo;
 
+import eu.clarin.cmdi.vlo.historyapi.HistoryApiAjaxRequestTargetListener;
+import java.util.Map;
 import org.apache.wicket.Application;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -16,9 +22,9 @@ import org.springframework.context.ApplicationContextAware;
  * @see eu.clarin.cmdi.Start#main(String[])
  */
 public class UrlTestApplication extends WebApplication implements ApplicationContextAware {
-    
+
     private final static Logger logger = LoggerFactory.getLogger(UrlTestApplication.class);
-        
+
     private ApplicationContext applicationContext;
 
     /**
@@ -49,5 +55,12 @@ public class UrlTestApplication extends WebApplication implements ApplicationCon
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
+
+    @Override
+    protected void init() {
+        super.init();
+        getAjaxRequestTargetListeners().add(new HistoryApiAjaxRequestTargetListener());
+    }
+
+
 }

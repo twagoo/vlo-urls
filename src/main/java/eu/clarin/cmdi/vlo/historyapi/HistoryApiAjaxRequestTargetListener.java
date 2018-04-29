@@ -14,62 +14,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package eu.clarin.cmdi.vlo;
+package eu.clarin.cmdi.vlo.historyapi;
 
-import java.util.HashMap;
+import java.util.Map;
+import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.util.encoding.UrlEncoder;
 
 /**
  *
  * @author Twan Goosen <twan@clarin.eu>
  */
-public class HistoryApiTargetRespondListener implements AjaxRequestTarget.ITargetRespondListener {
-
-    private final IModel<HashMap<String, IModel<?>>> pageParamsModel;
-
-    public HistoryApiTargetRespondListener() {
-        pageParamsModel = new Model<>(new HashMap<>());
-    }
-
-    public HistoryApiTargetRespondListener addModel(String key, IModel<?> model) {
-        pageParamsModel.getObject().put(key, model);
-        return this;
-    }
+public class HistoryApiAjaxRequestTargetListener extends AjaxRequestTarget.AbstractListener {
 
     @Override
-    public void onTargetRespond(AjaxRequestTarget target) {
+    public void onBeforeRespond(Map<String, Component> map, AjaxRequestTarget target) {
+        super.onBeforeRespond(map, target);
+        final Page page = target.getPage();
+        if (page instanceof HistoryApiAware) {
+            target.appendJavaScript(createParamsScript((HistoryApiAware) page));
+        }
+    }
 
-        StringBuilder state = new StringBuilder();
-        final HashMap<String, IModel<?>> map = pageParamsModel.getObject();
+    private String createParamsScript(HistoryApiAware page) {
+        final StringBuilder state = new StringBuilder();
+        final Map<String, IModel> map = page.getUrlParametersMap();
         map.keySet().forEach((key) -> {
             final String value = map.get(key).getObject().toString();
             final String encodedValue = UrlEncoder.QUERY_INSTANCE.encode(value, "UTF-8");
             state.append(key).append("=").append(encodedValue);
         });
-        
-        target.appendJavaScript(""
+
+        return ""
                 + "var path = this.window.location.pathname;"
                 + "var queryParams = this.window.location.search;"
                 + "var newParams = '?';"
-//                + "if (queryParams && queryParams !== '') {"
-//                + " sessionIndex = queryParams.replace(/\\?(\\d+).*/,'$1');"
-//                + " if(sessionIndex != '') {"
-//                + "   newParams += sessionIndex + '&'; "
-//                + " }"
-//                + " console.log('New params: ' + newParams);"
-//                + "}"
                 + "var newUrl = path + newParams + '" + state.toString() + "';"
                 + "console.log('New url: ' + newUrl);"
                 + "var stateObj = { foo: 'bar' };"
-                + "history.pushState(stateObj, 'page', newUrl);");
-    }
-
-    @Override
-    public String toString() {
-        return pageParamsModel.getObject().toString();
+                + "history.pushState(stateObj, 'page', newUrl);";
     }
 
 }

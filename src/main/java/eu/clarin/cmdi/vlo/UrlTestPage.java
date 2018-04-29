@@ -16,7 +16,10 @@
  */
 package eu.clarin.cmdi.vlo;
 
+import com.google.common.collect.ImmutableMap;
+import eu.clarin.cmdi.vlo.historyapi.HistoryApiAware;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -37,20 +40,22 @@ import org.slf4j.LoggerFactory;
  *
  * @author Twan Goosen <twan@clarin.eu>
  */
-public class UrlTestPage extends WebPage {
+public class UrlTestPage extends WebPage implements HistoryApiAware {
 
     private final static Logger LOG = LoggerFactory.getLogger(UrlTestPage.class);
 
     private IModel<String> textModel;
+    
+    private Map<String, IModel> paramsMap;
 
     public UrlTestPage(PageParameters parameters) {
         super(parameters);
         textModel = new Model<>(
                 parameters.get("text").toString("no value provided"));
-
-        final HistoryApiTargetRespondListener urlSetter
-                = new HistoryApiTargetRespondListener()
-                        .addModel("text", textModel);
+        
+        paramsMap = ImmutableMap.<String, IModel>builder()
+                .put("text", textModel)
+                .build();
 
         final Form form = new Form("form");
         final Label label = new Label("text", textModel);
@@ -61,7 +66,6 @@ public class UrlTestPage extends WebPage {
                 textModel.setObject("generated text " + new Random().nextInt());
                 if (target != null) {
                     target.add(form);
-                    target.registerRespondListener(urlSetter);
                 }
             }
         };
@@ -69,7 +73,7 @@ public class UrlTestPage extends WebPage {
         Label paramsLabel = new Label("params", new AbstractReadOnlyModel<String>() {
             @Override
             public String getObject() {
-                return urlSetter.toString();
+                return paramsMap.toString();
             }
         });
 
@@ -80,6 +84,11 @@ public class UrlTestPage extends WebPage {
                 .setOutputMarkupId(true)
         );
 
+    }
+
+    @Override
+    public Map<String, IModel> getUrlParametersMap() {
+        return paramsMap;
     }
 
 }
